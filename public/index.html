@@ -18,54 +18,102 @@
 
   <body>
     <div class="container">
+
+        <h1 id='error'></h1>
+
       <div id="login">
-        <h1>This is an example of the Authorization Code flow</h1>
+        <h1>Click the button to continue logging in</h1>
         <a href="/login" class="btn btn-primary">Log in with Spotify</a>
       </div>
       <div id="loggedin">
         <div id="user-profile">
         </div>
-        <div id="oauth">
-        </div>
-        <button class="btn btn-default" id="obtain-new-token">Obtain new token using the refresh token</button>
-        
 
-
-        <button class="btn btn-default" id="create-new-playlist">create new playlist</button>
-      
-
+        <button class="btn btn-default" id="obtain-new-auth-token">Obtain new token using the refresh token</button><br>
+        <label for="playlist-name">Enter a playlist name</label><br>
+        <input type="text" id="playlist-name" value=""><br>
+        <br>
+        <button class="btn btn-default" id="create-new-playlist">create new playlist</button><br>
+        <br>
+        <label for="artist-name">Enter an artist</label><br>
+        <input type="text" id="artist-name" value="billie eilish"><br>
+        <br>
+        <label for="state">Pick a state</label><br>
+        <select id="state">
+            <option value="AL">Alabama</option>
+            <option value="AK">Alaska</option>
+            <option value="AZ">Arizona</option>
+            <option value="AR">Arkansas</option>
+            <option value="CA">California</option>
+            <option value="CO">Colorado</option>
+            <option value="CT">Connecticut</option>
+            <option value="DE">Delaware</option>
+            <option value="DC">District of Columbia</option>
+            <option value="FL">Florida</option>
+            <option value="GA">Georgia</option>
+            <option value="HI">Hawaii</option>
+            <option value="ID">Idaho</option>
+            <option value="IL">Illinois</option>
+            <option value="IN">Indiana</option>
+            <option value="IA">Iowa</option>
+            <option value="KS">Kansas</option>
+            <option value="KY">Kentucky</option>
+            <option value="LA">Louisiana</option>
+            <option value="ME">Maine</option>
+            <option value="MD">Maryland</option>
+            <option value="MA">Massachusetts</option>
+            <option value="MI">Michigan</option>
+            <option value="MN">Minnesota</option>
+            <option value="MS">Mississippi</option>
+            <option value="MO">Missouri</option>
+            <option value="MT">Montana</option>
+            <option value="NE">Nebraska</option>
+            <option value="NV">Nevada</option>
+            <option value="NH">New Hampshire</option>
+            <option value="NJ">New Jersey</option>
+            <option value="NM">New Mexico</option>
+            <option value="NY">New York</option>
+            <option value="NC">North Carolina</option>
+            <option value="ND">North Dakota</option>
+            <option value="OH">Ohio</option>
+            <option value="OK">Oklahoma</option>
+            <option value="OR">Oregon</option>
+            <option value="PA">Pennsylvania</option>
+            <option value="RI">Rhode Island</option>
+            <option value="SC">South Carolina</option>
+            <option value="SD">South Dakota</option>
+            <option value="TN">Tennessee</option>
+            <option value="TX">Texas</option>
+            <option value="UT">Utah</option>
+            <option value="VT">Vermont</option>
+            <option value="VA">Virginia</option>
+            <option value="WA">Washington</option>
+            <option value="WV">West Virginia</option>
+            <option value="WI">Wisconsin</option>
+            <option value="WY">Wyoming</option>
+        </select> <br>
+        <br>
+        <label for="city">Enter the city</label><br>
+        <input type="text" id="city" value=""><br>
+        <br>
+        <label for="year">Enter a year</label><br>
+        <input type="text" id="year" value="2022"><br>
+        <br>
+        <label for="output-playlist">Name of playlist to put songs in</label><br>
+        <input type="text" id="output-playlist" value=""><br>
+        <br>
+        <button class="btn btn-default" id="search-setlist">search for setlists</button>
 
       </div>
     </div>
 
     <script id="user-profile-template" type="text/x-handlebars-template">
-      var id = {{id}};
-      console.log(id);
       <h1>Logged in as {{display_name}}</h1>
+      <!--
       <div class="media">
-        <div class="pull-left">
-          <img class="media-object" width="150" src="{{images.0.url}}" />
-        </div>
-        <div class="media-body">
-          <dl class="dl-horizontal">
-            <dt>Display name</dt><dd class="clearfix">{{display_name}}</dd>
-            <dt>Id</dt><dd>{{id}}</dd>
-            <dt>Email</dt><dd>{{email}}</dd>
-            <dt>Spotify URI</dt><dd><a href="{{external_urls.spotify}}">{{external_urls.spotify}}</a></dd>
-            <dt>Link</dt><dd><a href="{{href}}">{{href}}</a></dd>
-            <dt>Profile Image</dt><dd class="clearfix"><a href="{{images.0.url}}">{{images.0.url}}</a></dd>
-            <dt>Country</dt><dd>{{country}}</dd>
-          </dl>
-        </div>
+          <img class="media-object" src="{{images.0.url}}" />
       </div>
-    </script>
-
-    <script id="oauth-template" type="text/x-handlebars-template">
-      <h2>oAuth info</h2>
-      <dl class="dl-horizontal">
-        <dt>Access token</dt><dd class="text-overflow">{{access_token}}</dd>
-        <dt>Refresh token</dt><dd class="text-overflow">{{refresh_token}}</dd>
-      </dl>
+      //-->
     </script>
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0-alpha.1/handlebars.min.js"></script>
@@ -91,9 +139,6 @@
             userProfileTemplate = Handlebars.compile(userProfileSource),
             userProfilePlaceholder = document.getElementById('user-profile');
 
-        var oauthSource = document.getElementById('oauth-template').innerHTML,
-            oauthTemplate = Handlebars.compile(oauthSource),
-            oauthPlaceholder = document.getElementById('oauth');
 
         var params = getHashParams();
 
@@ -101,38 +146,47 @@
             refresh_token = params.refresh_token,
             error = params.error;
 
+        var login_error = document.getElementById('error').innerHTML;
 
         if (error) {
-          alert('There was an error during the authentication');
-        } else {
-          if (access_token) {
-            // render oauth info
-            oauthPlaceholder.innerHTML = oauthTemplate({
-              access_token: access_token,
-              refresh_token: refresh_token
-            });
-
-            $.ajax({
-                url: 'https://api.spotify.com/v1/me',
-                headers: {
-                  'Authorization': 'Bearer ' + access_token
-                },
-                success: function(response) {
-                  userProfilePlaceholder.innerHTML = userProfileTemplate(response);
+            alert('There was an error during the authentication');
+        } 
+        else {
+            if (access_token) {
+                $.ajax({
+                    url: 'https://api.spotify.com/v1/me',
+                    headers: {
+                        'Authorization': 'Bearer ' + access_token
+                    },
+                    success: function(response) {
+                        userProfilePlaceholder.innerHTML = userProfileTemplate(response);
                     
-                  $('#login').hide();
-                  $('#loggedin').show();
-                }
-            });
-          } else {
-              // render initial screen
-              $('#login').show();
-              $('#loggedin').hide();
-          }
+                        $('#login').hide();
+                        $('#loggedin').show();
+                    },
+                    error : function(response) {
+                        login_error = response;
+                    }
+                });
+            } 
+            else {
+                // render initial screen
+                $('#login').show();
+                $('#loggedin').hide();
+            }
 
-            /*My calls to create an empty playlist*/ 
+
+            ///////////////////////////////////////////////////////////
+            //My call to create an empty playlist based on given name//
+            ///////////////////////////////////////////////////////////
             document.getElementById('create-new-playlist').addEventListener('click', function() {
                 var user_id;
+                var playlist_name = document.getElementById("playlist-name").value;
+                if (playlist_name == ""){
+                    playlist_name = "CONCERT";
+                }
+                document.getElementById("playlist-name").value = "";
+
                 $.ajax({
                     url: "https://api.spotify.com/v1/me",
                     method: 'GET',
@@ -146,47 +200,78 @@
                         user_id = response.id;
                     },
                     error: function(response) {
-                        console.log(response);
-                        console.log("something went wrong");
+                        window.alert("Did not get user id in first request");
                     }
                 });
 
-                console.log('create playlist2 ' + user_id);
                 $.ajax({
-                    url: 'https://api.spotify.com/v1/users/'+user_id+'/playlists',
-                    method: 'POST',
-                    data: JSON.stringify({'name': 'TEST'}),
-                    dataType: 'json',
-                    headers: {
-                        'Authorization': 'Bearer ' + access_token,
-                        'Content-Type': 'application/json'
+                    url: '/createPlaylist',
+                    data: {
+                        'access_token': access_token,
+                        'user_id': user_id,
+                        'playlist_name': playlist_name
                     },
                     success: function(response) {
-                        console.log(response);
-                        console.log("added playlist");
+                        window.alert("successfully created playlist.");
                     },
                     error: function(response) {
-                        console.log(response);
-                        console.log("something went wrong");
+                        window.alert("failure creating playlist.");
                     }
                 });
             });
 
 
-          document.getElementById('obtain-new-token').addEventListener('click', function() {
-            $.ajax({
-              url: '/refresh_token',
-              data: {
-                'refresh_token': refresh_token
-              }
-            }).done(function(data) {
-              access_token = data.access_token;
-              oauthPlaceholder.innerHTML = oauthTemplate({
-                access_token: access_token,
-                refresh_token: refresh_token
-              });
+            ///////////////////////////////////////////////////////////////
+            //Call to server to get setlist info by artist and other info//
+            ///////////////////////////////////////////////////////////////
+            document.getElementById('search-setlist').addEventListener('click', function() {
+                var setlists;
+
+                // Getting the artist and splitting their name if needed
+                let artist = document.getElementById("artist-name").value;
+                let splitArtist = artist.split(' ');
+                artist = splitArtist.join('%20');
+                document.getElementById("artist-name").value = "";
+
+                // Get the state
+
+                // Get the year
+
+                // Maybe later get things like:
+                        //date of event instead of year,
+                        //city name
+                        //venue name
+                        //tour name
+
+                // Send request to backend to be processed
+                $.ajax({
+                    url: "/setlistByArtist",
+                    data:{'artist': artist},
+                    success: function(response) {
+                        setlists = response.setlists;
+                        window.alert(setlists);
+                    },
+                    error: function(response) {
+                        window.alert("failure getting setlist info seems like a server error.");
+                    }
+                });
             });
-          }, false);
+
+
+            // Spotify call to get new access token token
+            ////////////////////////////////////////////////////////////////
+            // Change this to be called when token does not work anymore //
+            //////////////////////////////////////////////////////////////
+            document.getElementById('obtain-new-auth-token').addEventListener('click', function() {
+                $.ajax({
+                url: '/refresh_token',
+                data: {
+                    'refresh_token': refresh_token
+                }
+                }).done(function(data) {
+                    access_token = data.access_token;
+                });
+            }, false);
         }
       })();
     </script>

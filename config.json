@@ -1,0 +1,6 @@
+{
+    "baseUrl": "https://api.setlist.fm/rest/1.0",
+    "setlists": "/search/setlists?artistName=",
+    "stateCode": "&StateCode=",
+    "page": "&p=1"
+}
