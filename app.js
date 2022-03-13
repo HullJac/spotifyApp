@@ -199,17 +199,43 @@ app.get('/setlistByArtist', function(req, res) {
     // Add more fields here, and account for artists with more than one name
     // But first, figure out how to grab the actual setlist data
     let artist = req.query.artist;
-    let url = config.baseUrl + config.setlists + artist + config.page;
+    let state = req.query.state;
+    let city = req.query.city;
+    let year = req.query.year;
+    let playlist = req.query.playlist;
 
+    // Create the url to query setlist.fm
+    var url = config.baseUrl + config.setlists + artist + config.stateCode + state + config.page;
+    //Check if stuff == "" and if it is just dont add it to the url
+    if (year != ''){
+       url = url + config.year + year; 
+    }
+    if (city != ''){
+        url = url + config.city + city;
+    }
+
+    // Send request to setlist.fm
     axios({
         method: 'GET',
         url: url,
         headers: setlistfm_headers
     }).then((resp)=>{
         console.log("SUCCESS getting info from setlist.fm");
-        // CHANGE THE STUFF HERE BASED ON USER INPUT
-        console.log(resp.data.setlist[2].sets.set[0].song);
-        res.send({'setlists': resp.data.setlist});
+        //TODO Sort this data by ones that have songs in the setlists
+        var goodSets = [];
+        for (let i = 0; i < resp.data.setlist.length; i++) {
+            if (resp.data.setlist[i].sets.set.length > 0) {
+                goodSets.push({
+                    '_id' : resp.data.setlist[i].id,
+                    '_date' : resp.data.setlist[i].eventDate,
+                    '_venue' : resp.data.setlist[i].venue.name,
+                    '_city' : resp.data.setlist[i].venue.city.name,
+                    '_set' : resp.data.setlist[i].sets.set[0]
+                });
+            }
+        }
+        //console.log(resp.data.setlist[2].sets.set[0].song);
+        res.send({'setlists': goodSets});
     }, (err) => {
         console.log("FAILURE getting info from setlist.fm");
         res.sendStatus(500);

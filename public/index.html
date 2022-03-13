@@ -4,7 +4,7 @@
     <title>Example of the Authorization Code flow with Spotify</title>
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
     <style type="text/css">
-      #login, #loggedin {
+      #login, #loggedin, #setlistSearch {
         display: none;
       }
       .text-overflow {
@@ -21,10 +21,17 @@
 
         <h1 id='error'></h1>
 
+      <!--
+      // LOGIN
+      //-->
       <div id="login">
         <h1>Click the button to continue logging in</h1>
         <a href="/login" class="btn btn-primary">Log in with Spotify</a>
       </div>
+
+      <!--
+      // LOGGEDIN
+      //-->
       <div id="loggedin">
         <div id="user-profile">
         </div>
@@ -103,6 +110,13 @@
         <input type="text" id="output-playlist" value=""><br>
         <br>
         <button class="btn btn-default" id="search-setlist">search for setlists</button>
+
+      </div>
+
+      <!--
+      // SETLIST SEARCH
+      //-->
+      <div id="setlistSearch">
 
       </div>
     </div>
@@ -227,29 +241,55 @@
             document.getElementById('search-setlist').addEventListener('click', function() {
                 var setlists;
 
-                // Getting the artist and splitting their name if needed
-                let artist = document.getElementById("artist-name").value;
+                // Getting the fields I am allowing to be passed
+                var artist = document.getElementById("artist-name").value;
+                let state = document.getElementById("state").value;
+                var city = document.getElementById("city").value;
+                let year = document.getElementById("year").value;
+                let playlist = document.getElementById("output-playlist").value;
+
+                // Split certain field if needed
                 let splitArtist = artist.split(' ');
                 artist = splitArtist.join('%20');
+                let splitCity = city.split(' ');
+                city = splitCity.join('%20');
+
+                // Clear fields
                 document.getElementById("artist-name").value = "";
-
-                // Get the state
-
-                // Get the year
-
-                // Maybe later get things like:
-                        //date of event instead of year,
-                        //city name
-                        //venue name
-                        //tour name
+                document.getElementById("state").value = "";
+                document.getElementById("city").value = "";
+                document.getElementById("year").value = "";
+                document.getElementById("output-playlist").value = "";
 
                 // Send request to backend to be processed
                 $.ajax({
                     url: "/setlistByArtist",
-                    data:{'artist': artist},
+                    data:{
+                        'artist': artist,
+                        'state': state,
+                        'city': city,
+                        'year': year,
+                        'playlist': playlist
+                    },
                     success: function(response) {
                         setlists = response.setlists;
-                        window.alert(setlists);
+                        // Hide the current screen TODO 
+                        //$('#loggedin').hide(); 
+
+                        // Clear the current setlists TODO
+
+                        // Display the set lists available TODO
+                        $('#setlistSearch').show();
+                        
+                        for (let i = 0; i < setlists.length; i++) {
+                            $('#setlistSearch').append(
+                                        setlists[i]._id+'<br>'+
+                                        setlists[i]._date+'<br>'+
+                                        setlists[i]._venue+'<br>'+
+                                        setlists[i]._city+'<br>'+
+                                        setlists[i]._set+'<br><br>'
+                            );
+                        }
                     },
                     error: function(response) {
                         window.alert("failure getting setlist info seems like a server error.");
