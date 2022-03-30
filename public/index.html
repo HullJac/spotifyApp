@@ -281,14 +281,37 @@
                         // Display the set lists available TODO
                         $('#setlistSearch').show();
                         
+                        // TODO add a click to each of the ids that send the id to the backend to be 
+                        // used for searching and adding the songs to the playlist.
                         for (let i = 0; i < setlists.length; i++) {
                             $('#setlistSearch').append(
-                                        setlists[i]._id+'<br>'+
+                                        '<div id=setlistID'+i+'>'+setlists[i]._id+'</div>'+
                                         setlists[i]._date+'<br>'+
                                         setlists[i]._venue+'<br>'+
-                                        setlists[i]._city+'<br>'+
-                                        setlists[i]._set+'<br><br>'
+                                        setlists[i]._city+'<br><br>'
+
+                                        //+setlists[i]._set+'<br><br>'
                             );
+                            document.getElementById('setlistID'+i).addEventListener('click', function() { 
+                                // Grabs the id when it is clicked on
+                                var clickedSetlistId = document.getElementById("setlistID"+i).innerHTML;
+                                
+                                // Request to send the id that was clicked
+                                $.ajax({
+                                    url: "/addSongsBySetlist",
+                                    data:{
+                                        'setlistID': clickedSetlistId,
+                                        'access_token': access_token 
+                                    },
+                                    success: function(response) {
+                                        window.alert("added the setlist to the playlist.");
+                                    },
+                                    error: function(response) {
+                                        window.alert("failure getting setlist info seems like a server error.");
+                                        return;
+                                    }
+                                });
+                            });
                         }
                     },
                     error: function(response) {

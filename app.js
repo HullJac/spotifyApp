@@ -6,6 +6,9 @@ var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
 var config = require('./config.json');  // Helps to shorten the urls types for setlist.fm
 
+// Variable to store the spotify playlist id
+var playlistID;
+
 // Get keys from file
 var fs = require('fs');
 var keys = [];
@@ -182,6 +185,7 @@ app.get('/createPlaylist', function(req, res) {
         dataType: 'json',
         headers: headers
     }).then((resp) => {
+        playlistID = resp.data.id;
         console.log("SUCCESS creting playlist in app.js");
         res.sendStatus(200);
     }, (err) => {
@@ -221,7 +225,6 @@ app.get('/setlistByArtist', function(req, res) {
         headers: setlistfm_headers
     }).then((resp)=>{
         console.log("SUCCESS getting info from setlist.fm");
-        //TODO Sort this data by ones that have songs in the setlists
         var goodSets = [];
         for (let i = 0; i < resp.data.setlist.length; i++) {
             if (resp.data.setlist[i].sets.set.length > 0) {
@@ -234,8 +237,63 @@ app.get('/setlistByArtist', function(req, res) {
                 });
             }
         }
-        //console.log(resp.data.setlist[2].sets.set[0].song);
         res.send({'setlists': goodSets});
+    }, (err) => {
+        console.log("FAILURE getting info from setlist.fm");
+        res.sendStatus(500);
+    });
+});
+
+
+//////////////////////////////////////////////////////////
+// Get setlist info by setlist id and send it to Spotify//
+//////////////////////////////////////////////////////////
+app.get('/addSongsBySetlist', function(req, res) {
+    // Set up url with the proper setlist id that was chosen
+    var access_token = req.query.access_token;
+    var setlistID = req.query.setlistID;
+    var url = config.baseUrl + "/setlist/" + setlistID;
+
+    // Send request to setlist.fm
+    axios({
+        method: 'GET',
+        url: url,
+        headers: setlistfm_headers
+    }).then((resp)=>{
+    //Grab all the song titles of the returned setlist.
+        songList = resp.data.sets.set[0].song;
+        //Have the song list now need to iterate through them.
+        //for(let i = 0; i < songList.length; i++) {
+            console.log(songList[0].name);
+            songName = songList[0].name;
+        
+            //TODO Then work on a spotify request.
+        //TODO maybe split this up into two different routes.
+            // Add more info to the search url here from the above song list.
+            var searchUrl = 'https://api.spotify.com/v1/search?type=track&q=artist:Billie%20Eilish+track:lovely';
+            var spotifyHeaders = {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + access_token
+            }
+            axios({
+                method: 'GET',
+                url: searchUrl,
+                dataType: 'json',
+                headers: spotifyHeaders
+            }).then((resp) => {
+                //console.log(resp);
+                console.log("SUCCESS adding song to playlist in app.js");
+                res.sendStatus(200);
+            }, (err) => {
+                console.log("FAILURE adding songs to playlist in app.js");
+                console.log(err);
+                res.sendStatus(500);
+                return;
+            });
+        //}
+    //Then send back an ok the to front end saying that the songs were added
+        res.sendStatus(200); 
     }, (err) => {
         console.log("FAILURE getting info from setlist.fm");
         res.sendStatus(500);
