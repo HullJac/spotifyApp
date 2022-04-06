@@ -246,7 +246,6 @@
                 let state = document.getElementById("state").value;
                 var city = document.getElementById("city").value;
                 let year = document.getElementById("year").value;
-                let playlist = document.getElementById("output-playlist").value;
 
                 // Split certain field if needed
                 let splitArtist = artist.split(' ');
@@ -259,7 +258,6 @@
                 document.getElementById("state").value = "";
                 document.getElementById("city").value = "";
                 document.getElementById("year").value = "";
-                document.getElementById("output-playlist").value = "";
 
                 // Send request to backend to be processed
                 $.ajax({
@@ -269,7 +267,6 @@
                         'state': state,
                         'city': city,
                         'year': year,
-                        'playlist': playlist
                     },
                     success: function(response) {
                         setlists = response.setlists;
@@ -281,8 +278,10 @@
                         // Display the set lists available TODO
                         $('#setlistSearch').show();
                         
-                        // TODO add a click to each of the ids that send the id to the backend to be 
-                        // used for searching and adding the songs to the playlist.
+                        //////////////////////////////////////////////////////////////////////
+                        // Add a click to each of the ids that send the id to the backend to /
+                        //////////////////////////////////////////////////////////////////////
+                        // be used for searching and adding the songs to the playlist.
                         for (let i = 0; i < setlists.length; i++) {
                             $('#setlistSearch').append(
                                         '<div id=setlistID'+i+'>'+setlists[i]._id+'</div>'+
@@ -295,19 +294,61 @@
                             document.getElementById('setlistID'+i).addEventListener('click', function() { 
                                 // Grabs the id when it is clicked on
                                 var clickedSetlistId = document.getElementById("setlistID"+i).innerHTML;
-                                
-                                // Request to send the id that was clicked
+                                var playlistName = document.getElementById("output-playlist").value; 
+                                document.getElementById("output-playlist").value = "";
+                                var playlistID;
+                                var uris;
+                                window.alert("artist: "+artist);
+
+                                // Request #1 Get the spotify uris from the setlist tracks
                                 $.ajax({
-                                    url: "/addSongsBySetlist",
+                                    url: "/getSongsFromSetlist",
+                                    //async: false,
                                     data:{
+                                        'access_token': access_token,
                                         'setlistID': clickedSetlistId,
-                                        'access_token': access_token 
+                                        'artist': artist
                                     },
                                     success: function(response) {
-                                        window.alert("added the setlist to the playlist.");
+                                        uris = response.uris;
+                                        window.alert("got uris " + uris);
                                     },
                                     error: function(response) {
-                                        window.alert("failure getting setlist info seems like a server error.");
+                                        window.alert("failure getting setlist songs by ID.");
+                                        return;
+                                    }
+                                });
+                                // Request #2 Get the playlist ID
+                                $.ajax({
+                                    url: "/findPlaylistId",
+                                    async: false,
+                                    data:{
+                                        'access_token': access_token,
+                                        'playlistName': playlistName
+                                    },
+                                    success: function(response) {
+                                        playlistID = response.playlistID;
+                                        window.alert("got playlistId " + playlistID);
+                                    },
+                                    error: function(response) {
+                                        window.alert("failure getting playlistID");
+                                        return;
+                                    }
+                                });
+                                // Request #3 Add songs to playlist
+                                $.ajax({
+                                    url: "/addSongsToPlaylist",
+                                    async: false,
+                                    data:{
+                                        'access_token': access_token,
+                                        'playlistID': playlistID,
+                                        'uris': uris
+                                    },
+                                    success: function(response) {
+                                        window.alert("success adding songs to playlist");
+                                    },
+                                    error: function(response) {
+                                        window.alert("failure adding songs to playlist");
                                         return;
                                     }
                                 });

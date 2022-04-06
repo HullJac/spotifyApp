@@ -1,7 +1,7 @@
 {
     "baseUrl": "https://api.setlist.fm/rest/1.0",
     "setlists": "/search/setlists?artistName=",
-    "stateCode": "&StateCode=",
+    "stateCode": "&stateCode=",
     "city": "&cityName=",
     "year": "&year=",
     "page": "&p=1"
