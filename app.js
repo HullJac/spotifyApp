@@ -271,9 +271,6 @@ app.get('/getSongsFromSetlist', function(req, res) {
                 let splitSongName = songName.split(' ');
                 songName = splitSongName.join('%20');
 
-                //console.log("artist "+artist);
-                //console.log("songName "+songName);
-
                 // Create the url based on the name of the track
                 // TODO in the future do not hard code the artist and track
                 // TODO I have a artist variable, I do not know if it is in the correct form though
@@ -301,8 +298,7 @@ app.get('/getSongsFromSetlist', function(req, res) {
 
         // Finally send back an ok the to front end saying that the songs were added
         console.log("SUCCESS searching songs from spotify in app.js");
-        console.log("uris before sending " + uris);
-        res.send({'uris':uris}); 
+        res.sendStatus(200); 
     }, (err) => {
         console.log("FAILURE searching songs from spotify in app.js");
         res.sendStatus(500);
@@ -336,13 +332,10 @@ app.get('/findPlaylistId', function(req, res) {
         // Iterate throuhg all the users playlists and find the correct one to grab the id
         var playlists = resp.data.items;
         for(let i = 0; i < playlists.length; i++){
-            //console.log(playlists[i].name);
-            //console.log(playlistName);
             if (playlists[i].name == playlistName) {
                 playlistID = playlists[i].id;
             }
         }
-        //console.log("playlistID " + playlistID);
         res.send({'playlistID':playlistID});
         console.log("Spotify playlists results success");
     }, (err) => {
@@ -358,7 +351,6 @@ app.get('/findPlaylistId', function(req, res) {
 ////////////////////////////////////////////////////////
 app.get('/addSongsToPlaylist', function(req, res) {
     var access_token = req.query.access_token;
-//    var uris = req.query.uris;
     var playlistID = req.query.playlistID;
     
     //
@@ -381,6 +373,7 @@ app.get('/addSongsToPlaylist', function(req, res) {
         headers: spotifyHeaders
     }).then((resp) => {
         console.log("SUCCESS adding to playlist in app.js");
+        res.sendStatus(200);
     }, (err) => {
         console.log("FAILURE adding songs to playlist in app.js");
         console.log(err);

@@ -303,15 +303,14 @@
                                 // Request #1 Get the spotify uris from the setlist tracks
                                 $.ajax({
                                     url: "/getSongsFromSetlist",
-                                    //async: false,
+                                    async: false,
                                     data:{
                                         'access_token': access_token,
                                         'setlistID': clickedSetlistId,
                                         'artist': artist
                                     },
                                     success: function(response) {
-                                        uris = response.uris;
-                                        window.alert("got uris " + uris);
+                                        window.alert("success getting seltist songs by ID.");
                                     },
                                     error: function(response) {
                                         window.alert("failure getting setlist songs by ID.");
