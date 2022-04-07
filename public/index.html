@@ -298,7 +298,6 @@
                                 document.getElementById("output-playlist").value = "";
                                 var playlistID;
                                 var uris;
-                                window.alert("artist: "+artist);
 
                                 // Request #1 Get the spotify uris from the setlist tracks
                                 $.ajax({
@@ -327,7 +326,7 @@
                                     },
                                     success: function(response) {
                                         playlistID = response.playlistID;
-                                        window.alert("got playlistId " + playlistID);
+                                        window.alert("success getting playlist ID " + playlistID);
                                     },
                                     error: function(response) {
                                         window.alert("failure getting playlistID");

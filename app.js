@@ -337,7 +337,7 @@ app.get('/findPlaylistId', function(req, res) {
             }
         }
         res.send({'playlistID':playlistID});
-        console.log("Spotify playlists results success");
+        console.log("SUCCESS getting platylist ID in app.js");
     }, (err) => {
         console.log("FAILURE grabbing playlists from spotify in app.js");
         console.log(err);
@@ -356,15 +356,12 @@ app.get('/addSongsToPlaylist', function(req, res) {
     //
     // Make the request to Spotify to add all the songs to the playlist
     //
-    console.log("uris "+ uris);
-    console.log("PLAYLISTID: " + playlistID);
     var addToPlaylistUrl = 'https://api.spotify.com/v1/playlists/'+playlistID+'/tracks';
     var spotifyHeaders = {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + access_token
     }
-    console.log(addToPlaylistUrl);
     axios({
         method: 'POST',
         url: addToPlaylistUrl,
