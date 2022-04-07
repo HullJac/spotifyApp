@@ -271,9 +271,6 @@ app.get('/getSongsFromSetlist', function(req, res) {
                 let splitSongName = songName.split(' ');
                 songName = splitSongName.join('%20');
 
-                //console.log("artist "+artist);
-                //console.log("songName "+songName);
-
                 // Create the url based on the name of the track
                 // TODO in the future do not hard code the artist and track
                 // TODO I have a artist variable, I do not know if it is in the correct form though
@@ -301,7 +298,6 @@ app.get('/getSongsFromSetlist', function(req, res) {
 
         // Finally send back an ok the to front end saying that the songs were added
         console.log("SUCCESS searching songs from spotify in app.js");
-        console.log("uris before sending " + uris);
         res.send({'uris':uris}); 
     }, (err) => {
         console.log("FAILURE searching songs from spotify in app.js");
@@ -336,13 +332,10 @@ app.get('/findPlaylistId', function(req, res) {
         // Iterate throuhg all the users playlists and find the correct one to grab the id
         var playlists = resp.data.items;
         for(let i = 0; i < playlists.length; i++){
-            //console.log(playlists[i].name);
-            //console.log(playlistName);
             if (playlists[i].name == playlistName) {
                 playlistID = playlists[i].id;
             }
         }
-        //console.log("playlistID " + playlistID);
         res.send({'playlistID':playlistID});
         console.log("Spotify playlists results success");
     }, (err) => {
@@ -364,15 +357,12 @@ app.get('/addSongsToPlaylist', function(req, res) {
     //
     // Make the request to Spotify to add all the songs to the playlist
     //
-    console.log("uris "+ uris);
-    console.log("PLAYLISTID: " + playlistID);
     var addToPlaylistUrl = 'https://api.spotify.com/v1/playlists/'+playlistID+'/tracks';
     var spotifyHeaders = {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + access_token
     }
-    console.log(addToPlaylistUrl);
     axios({
         method: 'POST',
         url: addToPlaylistUrl,
